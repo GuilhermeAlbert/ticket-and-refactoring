@@ -10,11 +10,15 @@ describe("deterministicPartitionKey", () => {
   it("should returns the given partition key", () => {
     const event = {
       uuid: "1234567890abcdef",
+      data: {
+        message: "My partition key",
+      },
+      id: "123ABC456EFG",
     };
 
     const key = deterministicPartitionKey(event);
     const expectedKey =
-      "c59272471749889935273e576a50fa562b66197cfb4b5c24695889057f7dab87ded780aa546a3b08c721871dd5f4cfd6d6c90b88398756f8e5eb9ce47d38fdc0";
+      "5f0bf9b71084057b6c4d76c66e067d7d6a3a0b25f0786618116296c680a0d87a797f501d74f7b79c71206a66b1aea5013175985f795467050eaa03abff018097";
 
     expect(key).toBe(expectedKey);
   });
@@ -39,5 +43,16 @@ describe("deterministicPartitionKey", () => {
     const key = deterministicPartitionKey(event);
 
     expect(key).toBe(String(partitionKey));
+  });
+
+  test("should generate hash key when candidate length exceeds maximum partition key length", () => {
+    const event = {
+      partitionKey: "0123456789abcdef".repeat(20),
+    };
+    const result = deterministicPartitionKey(event);
+
+    expect(typeof result).toBe("string");
+    expect(result.length).toBeGreaterThan(0);
+    expect(result).not.toBe(event);
   });
 });
